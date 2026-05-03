@@ -708,10 +708,13 @@ async function testConn(){
 
 // ─── GOOGLE SHEETS GET ──────────────────────────────────
 async function gGet(sheet, range){
-  const url=`https://sheets.googleapis.com/v4/spreadsheets/${CFG.id}/values/${encodeURIComponent(sheet+'!'+range)}?key=${CFG.key}`;
+  if(!CFG.script) throw new Error('Script URL non configurato');
+  const url = CFG.script + '?sheet=' + encodeURIComponent(sheet) + '&range=' + encodeURIComponent(range);
   const r = await fetch(url);
   if(!r.ok) throw new Error('HTTP '+r.status);
-  return (await r.json()).values || [];
+  const data = await r.json();
+  if(data.error) throw new Error(data.error);
+  return data.values || [];
 }
 
 // ─── GOOGLE APPS SCRIPT POST ────────────────────────────
@@ -741,7 +744,7 @@ async function refreshAll(){
   const si = document.getElementById('sync-info');
   si.textContent = '⏳ sync…';
   try {
-    if(CFG.id && CFG.key){
+    if(CFG.script){
       await Promise.all([loadProd(),loadForn(),loadCli(),loadAcq(),loadVend(),loadMov()]);
     } else {
       loadFromLS();
