@@ -663,7 +663,7 @@ textarea.fc{resize:vertical;min-height:65px}
 <!-- ════════════ JAVASCRIPT ════════════ -->
 <script>
 // ─── STATE ──────────────────────────────────────────────
-let CFG = {id:'', key:'', script:''};
+let CFG = {id:'10xuWJ_uUfoekPEBgLmDc1pNi6I6p7u-Aq5Pj-MbR7Fg', key:'', script:'https://script.google.com/macros/s/AKfycbwu3OkkiGbDPDTUSXipTRRtXqLowdL-Yq4B7xcZulKl84xv52O2489Vzmwf3BvnRTf9/exec'};
 let DB = {prodotti:[], fornitori:[], clienti:[], acquisti:[], vendite:[], movimenti:[]};
 let CHARTS = {};
 
@@ -692,7 +692,10 @@ function saveConfig(){
 }
 function loadCfg(){
   const r = localStorage.getItem('f_cfg');
-  if(!r) return;
+  if(!r) {
+    document.getElementById('cfg-id').value  = '10xuWJ_uUfoekPEBgLmDc1pNi6I6p7u-Aq5Pj-MbR7Fg';
+    return;
+  }
   CFG = JSON.parse(r);
   document.getElementById('cfg-id').value  = CFG.id  || '';
   document.getElementById('cfg-key').value = CFG.key || '';
