@@ -758,22 +758,22 @@ async function refreshAll(){
 }
 
 async function loadProd(){
-  DB.prodotti = (await gGet('PRODOTTI','A2:F1000')).map(r=>({id:r[0]||'',nome:r[1]||'',cat:r[2]||'',um:r[3]||'',psacq:+r[4]||0,psvend:+r[5]||0}));
+  DB.prodotti = (await gGet('PRODOTTI','A2:F1000')).filter(r=>r[0]&&r[1]).map(r=>({id:r[0]||'',nome:r[1]||'',cat:r[2]||'',um:r[3]||'',psacq:+r[4]||0,psvend:+r[5]||0}));
 }
 async function loadForn(){
-  DB.fornitori = (await gGet('FORNITORI','A2:K1000')).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
+  DB.fornitori = (await gGet('FORNITORI','A2:K1000')).filter(r=>r[0]&&r[1]).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
 }
 async function loadCli(){
-  DB.clienti = (await gGet('CLIENTI','A2:K1000')).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
+  DB.clienti = (await gGet('CLIENTI','A2:K1000')).filter(r=>r[0]&&r[1]).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
 }
 async function loadAcq(){
-  DB.acquisti = (await gGet('ACQUISTI','A2:G1000')).map(r=>({id:r[0]||'',data:r[1]||'',fornId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
+  DB.acquisti = (await gGet('ACQUISTI','A2:G1000')).filter(r=>r[0]&&r[1]).map(r=>({id:r[0]||'',data:r[1]||'',fornId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
 }
 async function loadVend(){
-  DB.vendite = (await gGet('VENDITE','A2:G1000')).map(r=>({id:r[0]||'',data:r[1]||'',cliId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
+  DB.vendite = (await gGet('VENDITE','A2:G1000')).filter(r=>r[0]&&r[1]).map(r=>({id:r[0]||'',data:r[1]||'',cliId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
 }
 async function loadMov(){
-  DB.movimenti = (await gGet('MOVIMENTI','A2:H1000')).map(r=>({id:r[0]||'',acqId:r[1]||'',vendId:r[2]||'',prodId:r[3]||'',tipo:r[4]||'',qta:+r[5]||0,prezzo:+r[6]||0,sub:+r[7]||0}));
+  DB.movimenti = (await gGet('MOVIMENTI','A2:H1000')).filter(r=>r[0]&&r[4]).map(r=>({id:r[0]||'',acqId:r[1]||'',vendId:r[2]||'',prodId:r[3]||'',tipo:r[4]||'',qta:+r[5]||0,prezzo:+r[6]||0,sub:+r[7]||0}));
 }
 
 // ─── RENDER ALL ────────────────────────────────────────
