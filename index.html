@@ -962,9 +962,9 @@ function renderCharts(){
   const vendFiltrate = DB.vendite.filter(v => matchFiltro(v.data));
   const acqFiltrate = DB.acquisti.filter(a => matchFiltro(a.data));
 
-  // Trend anno corrente (Gennaio → Dicembre)
-  const currentYear = new Date().getFullYear();
-  const months = ['01','02','03','04','05','06','07','08','09','10','11','12'].map(m=>`${currentYear}-${m}`);
+  // Trend: usa l'anno selezionato nei filtri o l'anno corrente
+  const yearForChart = annoFilter || new Date().getFullYear();
+  const months = ['01','02','03','04','05','06','07','08','09','10','11','12'].map(m=>`${yearForChart}-${m}`);
   const labels = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
   mk('ch-trend','bar',{
     labels,
@@ -980,8 +980,9 @@ function renderCharts(){
     if(vendFiltrate.find(v=>v.id===m.vendId)) pv[m.prodId]=(pv[m.prodId]||0)+m.sub;
   });
   const topP=Object.entries(pv).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const topPLabels = topP.length ? topP.map(x=>`${getNome(DB.prodotti,x[0])} - € ${x[1].toFixed(2).replace('.',',')}`) : ['—'];
   mk('ch-top','doughnut',{
-    labels:topP.length?topP.map(x=>getNome(DB.prodotti,x[0])):['—'],
+    labels:topPLabels,
     datasets:[{data:topP.length?topP.map(x=>x[1]):[1],backgroundColor:pal}]
   });
 
@@ -991,8 +992,9 @@ function renderCharts(){
     const pids=DB.prodotti.filter(p=>p.cat===cat).map(p=>p.id);
     return DB.movimenti.filter(m=>m.tipo==='Vendita'&&pids.includes(m.prodId)&&vendFiltrate.find(v=>v.id===m.vendId)).reduce((s,m)=>s+m.sub,0);
   });
+  const catLabels = cats.length ? cats.map((c,i)=>`${c} - € ${catVend[i].toFixed(2).replace('.',',')}`) : ['—'];
   mk('ch-cat','pie',{
-    labels:cats.length?cats:['—'],
+    labels:catLabels,
     datasets:[{data:catVend.length&&catVend.some(x=>x>0)?catVend:[1],backgroundColor:pal}]
   });
 
