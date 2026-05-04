@@ -282,7 +282,7 @@ textarea.fc{resize:vertical;min-height:65px}
 
   <div class="nav-group">
     <div class="nav-group-label">Anagrafica</div>
-    <button class="nav-btn" onclick="go('prodotti')"><span class="ni">🍋</span><span>Prodotti</span></button>
+    <button class="nav-btn" onclick="go('prodotti')"><span class="ni">🥦</span><span>Prodotti</span></button>
     <button class="nav-btn" onclick="go('clienti')"><span class="ni">👥</span><span>Clienti</span></button>
     <button class="nav-btn" onclick="go('fornitori')"><span class="ni">🏭</span><span>Fornitori</span></button>
   </div>
@@ -306,29 +306,6 @@ textarea.fc{resize:vertical;min-height:65px}
 
     <!-- ────── DASHBOARD ────── -->
     <div id="pg-dashboard" class="page active">
-
-      <!-- Filtri -->
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
-        <span style="font-size:12px;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase">Filtra per:</span>
-        <select class="fc" id="f-mese" onchange="renderDash()" style="width:140px;padding:7px 12px;font-size:13px">
-          <option value="">Tutti i mesi</option>
-          <option value="01">Gennaio</option>
-          <option value="02">Febbraio</option>
-          <option value="03">Marzo</option>
-          <option value="04">Aprile</option>
-          <option value="05">Maggio</option>
-          <option value="06">Giugno</option>
-          <option value="07">Luglio</option>
-          <option value="08">Agosto</option>
-          <option value="09">Settembre</option>
-          <option value="10">Ottobre</option>
-          <option value="11">Novembre</option>
-          <option value="12">Dicembre</option>
-        </select>
-        <select class="fc" id="f-anno" onchange="renderDash()" style="width:110px;padding:7px 12px;font-size:13px"></select>
-        <button class="btn btn-ghost" onclick="resetFiltri()" style="font-size:12px;padding:7px 12px">✕ Reset</button>
-      </div>
-
       <div class="kpi-row">
         <div class="kpi c-blue"><div class="kpi-label">Vendite mese</div><div class="kpi-val" id="k-vm">—</div><div class="kpi-hint" id="k-vm-h"></div></div>
         <div class="kpi c-green"><div class="kpi-label">Acquisti mese</div><div class="kpi-val" id="k-am">—</div><div class="kpi-hint" id="k-am-h"></div></div>
@@ -339,7 +316,7 @@ textarea.fc{resize:vertical;min-height:65px}
       </div>
 
       <div class="charts-2">
-        <div class="card"><div class="card-title">Vendite vs Acquisti – anno corrente</div><canvas id="ch-trend"></canvas></div>
+        <div class="card"><div class="card-title">Vendite vs Acquisti – ultimi 12 mesi</div><canvas id="ch-trend"></canvas></div>
         <div class="card"><div class="card-title">Top 5 prodotti</div><canvas id="ch-top"></canvas></div>
       </div>
 
@@ -349,7 +326,18 @@ textarea.fc{resize:vertical;min-height:65px}
         <div class="card"><div class="card-title">Fornitori principali</div><canvas id="ch-forn"></canvas></div>
       </div>
 
-
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="tw">
+          <div class="tw-head"><h3>Ultime vendite</h3></div>
+          <table><thead><tr><th>Data</th><th>Cliente</th><th>Totale</th><th>Stato</th></tr></thead>
+          <tbody id="d-vend"></tbody></table>
+        </div>
+        <div class="tw">
+          <div class="tw-head"><h3>Ultimi acquisti</h3></div>
+          <table><thead><tr><th>Data</th><th>Fornitore</th><th>Totale</th><th>Stato</th></tr></thead>
+          <tbody id="d-acq"></tbody></table>
+        </div>
+      </div>
     </div>
 
     <!-- ────── VENDITE ────── -->
@@ -358,26 +346,9 @@ textarea.fc{resize:vertical;min-height:65px}
         <div class="tw-head">
           <h3>Registro Vendite</h3>
           <div class="tw-toolbar">
+            <input class="search" placeholder="🔍 Cerca…" oninput="filter('tb-vend',this.value)"/>
             <button class="btn btn-primary" onclick="openModal('mo-vend')">+ Nuova Vendita</button>
           </div>
-        </div>
-        <!-- Filtri vendite -->
-        <div style="display:flex;gap:10px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border2);flex-wrap:wrap">
-          <select class="fc" id="fv-mese" onchange="renderVendite()" style="width:140px;padding:7px 12px;font-size:12px">
-            <option value="">Tutti i mesi</option>
-            <option value="01">Gennaio</option><option value="02">Febbraio</option>
-            <option value="03">Marzo</option><option value="04">Aprile</option>
-            <option value="05">Maggio</option><option value="06">Giugno</option>
-            <option value="07">Luglio</option><option value="08">Agosto</option>
-            <option value="09">Settembre</option><option value="10">Ottobre</option>
-            <option value="11">Novembre</option><option value="12">Dicembre</option>
-          </select>
-          <select class="fc" id="fv-anno" onchange="renderVendite()" style="width:110px;padding:7px 12px;font-size:12px"></select>
-          <select class="fc" id="fv-cliente" onchange="renderVendite()" style="width:180px;padding:7px 12px;font-size:12px">
-            <option value="">Tutti i clienti</option>
-          </select>
-          <button class="btn btn-ghost" onclick="resetFiltriVendite()" style="font-size:12px;padding:7px 12px">✕ Reset</button>
-          <span id="fv-count" style="font-size:11px;color:var(--text-muted);margin-left:auto"></span>
         </div>
         <table>
           <thead><tr>
@@ -395,26 +366,9 @@ textarea.fc{resize:vertical;min-height:65px}
         <div class="tw-head">
           <h3>Registro Acquisti</h3>
           <div class="tw-toolbar">
+            <input class="search" placeholder="🔍 Cerca…" oninput="filter('tb-acq',this.value)"/>
             <button class="btn btn-primary" onclick="openModal('mo-acq')">+ Nuovo Acquisto</button>
           </div>
-        </div>
-        <!-- Filtri acquisti -->
-        <div style="display:flex;gap:10px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border2);flex-wrap:wrap">
-          <select class="fc" id="fa-mese" onchange="renderAcquisti()" style="width:140px;padding:7px 12px;font-size:12px">
-            <option value="">Tutti i mesi</option>
-            <option value="01">Gennaio</option><option value="02">Febbraio</option>
-            <option value="03">Marzo</option><option value="04">Aprile</option>
-            <option value="05">Maggio</option><option value="06">Giugno</option>
-            <option value="07">Luglio</option><option value="08">Agosto</option>
-            <option value="09">Settembre</option><option value="10">Ottobre</option>
-            <option value="11">Novembre</option><option value="12">Dicembre</option>
-          </select>
-          <select class="fc" id="fa-anno" onchange="renderAcquisti()" style="width:110px;padding:7px 12px;font-size:12px"></select>
-          <select class="fc" id="fa-fornitore" onchange="renderAcquisti()" style="width:180px;padding:7px 12px;font-size:12px">
-            <option value="">Tutti i fornitori</option>
-          </select>
-          <button class="btn btn-ghost" onclick="resetFiltriAcquisti()" style="font-size:12px;padding:7px 12px">✕ Reset</button>
-          <span id="fa-count" style="font-size:11px;color:var(--text-muted);margin-left:auto"></span>
         </div>
         <table>
           <thead><tr>
@@ -622,7 +576,7 @@ textarea.fc{resize:vertical;min-height:65px}
 <!-- PRODOTTO -->
 <div class="overlay" id="mo-prod">
   <div class="modal">
-    <div class="modal-title">🍋 Nuovo Prodotto</div>
+    <div class="modal-title">🥦 Nuovo Prodotto</div>
     <div class="fg">
       <div class="fgroup full"><label>Nome *</label><input type="text" class="fc" id="p-nome" placeholder="Es: Pomodori San Marzano"/></div>
       <div class="fgroup"><label>Categoria *</label>
@@ -709,7 +663,7 @@ textarea.fc{resize:vertical;min-height:65px}
 <!-- ════════════ JAVASCRIPT ════════════ -->
 <script>
 // ─── STATE ──────────────────────────────────────────────
-let CFG = {id:'10xuWJ_uUfoekPEBgLmDc1pNi6I6p7u-Aq5Pj-MbR7Fg', key:'', script:'https://script.google.com/macros/s/AKfycbwu3OkkiGbDPDTUSXipTRRtXqLowdL-Yq4B7xcZulKl84xv52O2489Vzmwf3BvnRTf9/exec'};
+let CFG = {id:'', key:'', script:''};
 let DB = {prodotti:[], fornitori:[], clienti:[], acquisti:[], vendite:[], movimenti:[]};
 let CHARTS = {};
 
@@ -717,7 +671,6 @@ let CHARTS = {};
 window.onload = () => {
   loadCfg();
   setToday();
-  initFiltri();
   loadFromLS();
   renderAll();
 };
@@ -739,10 +692,7 @@ function saveConfig(){
 }
 function loadCfg(){
   const r = localStorage.getItem('f_cfg');
-  if(!r) {
-    document.getElementById('cfg-id').value  = '10xuWJ_uUfoekPEBgLmDc1pNi6I6p7u-Aq5Pj-MbR7Fg';
-    return;
-  }
+  if(!r) return;
   CFG = JSON.parse(r);
   document.getElementById('cfg-id').value  = CFG.id  || '';
   document.getElementById('cfg-key').value = CFG.key || '';
@@ -755,34 +705,20 @@ async function testConn(){
 
 // ─── GOOGLE SHEETS GET ──────────────────────────────────
 async function gGet(sheet, range){
-  if(!CFG.script) throw new Error('Script URL non configurato');
-  const url = CFG.script + '?sheet=' + encodeURIComponent(sheet) + '&range=' + encodeURIComponent(range);
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${CFG.id}/values/${encodeURIComponent(sheet+'!'+range)}?key=${CFG.key}`;
   const r = await fetch(url);
   if(!r.ok) throw new Error('HTTP '+r.status);
-  const data = await r.json();
-  if(data.error) throw new Error(data.error);
-  return data.values || [];
+  return (await r.json()).values || [];
 }
 
 // ─── GOOGLE APPS SCRIPT POST ────────────────────────────
 async function gPost(sheet, row){
   if(!CFG.script) return;
-  try {
-    const r = await fetch(CFG.script, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({sheet, row})
-    });
-    const data = await r.json();
-    if(data.ok){
-      toast(`✅ Salvato su Google Sheets (${sheet})`, 's');
-    } else {
-      toast(`⚠️ Errore scrittura ${sheet}: ${data.error}`, 'e');
-    }
-  } catch(e) {
-    toast(`❌ Connessione fallita: ${e.message}`, 'e');
-    console.warn('gPost error:', e);
-  }
+  await fetch(CFG.script, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({sheet, row})
+  });
 }
 
 // ─── LOCAL STORAGE (modalità demo) ──────────────────────
@@ -802,7 +738,7 @@ async function refreshAll(){
   const si = document.getElementById('sync-info');
   si.textContent = '⏳ sync…';
   try {
-    if(CFG.script){
+    if(CFG.id && CFG.key){
       await Promise.all([loadProd(),loadForn(),loadCli(),loadAcq(),loadVend(),loadMov()]);
     } else {
       loadFromLS();
@@ -816,22 +752,22 @@ async function refreshAll(){
 }
 
 async function loadProd(){
-  DB.prodotti = (await gGet('PRODOTTI','A2:F')).map(r=>({id:r[0]||'',nome:r[1]||'',cat:r[2]||'',um:r[3]||'',psacq:+r[4]||0,psvend:+r[5]||0}));
+  DB.prodotti = (await gGet('PRODOTTI','A2:F1000')).map(r=>({id:r[0]||'',nome:r[1]||'',cat:r[2]||'',um:r[3]||'',psacq:+r[4]||0,psvend:+r[5]||0}));
 }
 async function loadForn(){
-  DB.fornitori = (await gGet('FORNITORI','A2:K')).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
+  DB.fornitori = (await gGet('FORNITORI','A2:K1000')).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
 }
 async function loadCli(){
-  DB.clienti = (await gGet('CLIENTI','A2:K')).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
+  DB.clienti = (await gGet('CLIENTI','A2:K1000')).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
 }
 async function loadAcq(){
-  DB.acquisti = (await gGet('ACQUISTI','A2:G')).map(r=>({id:r[0]||'',data:r[1]||'',fornId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
+  DB.acquisti = (await gGet('ACQUISTI','A2:G1000')).map(r=>({id:r[0]||'',data:r[1]||'',fornId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
 }
 async function loadVend(){
-  DB.vendite = (await gGet('VENDITE','A2:G')).map(r=>({id:r[0]||'',data:r[1]||'',cliId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
+  DB.vendite = (await gGet('VENDITE','A2:G1000')).map(r=>({id:r[0]||'',data:r[1]||'',cliId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
 }
 async function loadMov(){
-  DB.movimenti = (await gGet('MOVIMENTI','A2:H')).map(r=>({id:r[0]||'',acqId:r[1]||'',vendId:r[2]||'',prodId:r[3]||'',tipo:r[4]||'',qta:+r[5]||0,prezzo:+r[6]||0,sub:+r[7]||0}));
+  DB.movimenti = (await gGet('MOVIMENTI','A2:H1000')).map(r=>({id:r[0]||'',acqId:r[1]||'',vendId:r[2]||'',prodId:r[3]||'',tipo:r[4]||'',qta:+r[5]||0,prezzo:+r[6]||0,sub:+r[7]||0}));
 }
 
 // ─── RENDER ALL ────────────────────────────────────────
@@ -855,72 +791,16 @@ function totAcquisto(acqId){
   return DB.movimenti.filter(m=>m.tipo==='Acquisto'&&m.acqId===acqId).reduce((s,m)=>s+m.sub,0);
 }
 
-// ─── FILTRI DASHBOARD ──────────────────────────────────
-function initFiltri(){
-  const annoSel = document.getElementById('f-anno');
-  const annoCorrente = new Date().getFullYear();
-  // Popola anni: da 2 anni fa a anno corrente + 1
-  annoSel.innerHTML = '<option value="">Tutti gli anni</option>';
-  for(let y = annoCorrente - 2; y <= annoCorrente + 1; y++){
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    if(y === annoCorrente) opt.selected = true;
-    annoSel.appendChild(opt);
-  }
-  // Preseleziona mese corrente
-  const meseCorrente = String(new Date().getMonth()+1).padStart(2,'0');
-  document.getElementById('f-mese').value = meseCorrente;
-}
-
-function resetFiltri(){
-  const annoCorrente = new Date().getFullYear();
-  const meseCorrente = String(new Date().getMonth()+1).padStart(2,'0');
-  document.getElementById('f-mese').value = meseCorrente;
-  document.getElementById('f-anno').value = annoCorrente;
-  renderDash();
-}
-
-function getFiltroPrefix(){
-  const m = document.getElementById('f-mese')?.value || '';
-  const a = document.getElementById('f-anno')?.value || '';
-  if(a && m) return `${a}-${m}`;
-  if(a)      return `${a}`;
-  if(m)      return `-${m}-`; // match parziale su mese
-  return '';
-}
-
-function matchFiltro(data){
-  const m = document.getElementById('f-mese')?.value || '';
-  const a = document.getElementById('f-anno')?.value || '';
-  if(a && m) return data.startsWith(`${a}-${m}`);
-  if(a)      return data.startsWith(`${a}`);
-  if(m)      return data.slice(5,7) === m;
-  return true;
-}
-
 // ─── DASHBOARD ─────────────────────────────────────────
 function renderDash(){
-  const vm  = DB.vendite.filter(v=>matchFiltro(v.data));
-  const am  = DB.acquisti.filter(a=>matchFiltro(a.data));
+  const m = mese();
+  const vm  = DB.vendite.filter(v=>v.data.startsWith(m));
+  const am  = DB.acquisti.filter(a=>a.data.startsWith(m));
   const tv  = vm.reduce((s,v)=>s+totVendita(v.id),0);
   const ta  = am.reduce((s,a)=>s+totAcquisto(a.id),0);
   const crd = DB.vendite.filter(v=>!v.pagato).reduce((s,v)=>s+totVendita(v.id),0);
   const dbt = DB.acquisti.filter(a=>!a.pagato).reduce((s,a)=>s+totAcquisto(a.id),0);
   const ntx = vm.length + am.length;
-
-  // Aggiorna label KPI in base al filtro
-  const meseSel = document.getElementById('f-mese')?.value;
-  const annoSel = document.getElementById('f-anno')?.value;
-  const mesiNomi = ['','Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
-  const periodoLabel = meseSel && annoSel ? `${mesiNomi[+meseSel]} ${annoSel}`
-    : annoSel ? annoSel
-    : meseSel ? mesiNomi[+meseSel]
-    : 'Tutto';
-
-  document.querySelector('.kpi.c-blue .kpi-label').textContent   = `Vendite (${periodoLabel})`;
-  document.querySelector('.kpi.c-green .kpi-label').textContent  = `Acquisti (${periodoLabel})`;
-  document.querySelector('.kpi.c-violet .kpi-label').textContent = `N° transazioni (${periodoLabel})`;
 
   document.getElementById('k-vm').textContent = eur(tv);
   document.getElementById('k-vm-h').textContent = vm.length+' vendite';
@@ -932,6 +812,24 @@ function renderDash(){
   document.getElementById('k-ntx').textContent = ntx;
 
   renderCharts();
+  renderDashMini();
+}
+
+function renderDashMini(){
+  const dv = document.getElementById('d-vend');
+  const da = document.getElementById('d-acq');
+  const lv = [...DB.vendite].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,5);
+  const la = [...DB.acquisti].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,5);
+  dv.innerHTML = lv.length ? lv.map(v=>`<tr>
+    <td>${fdt(v.data)}</td><td>${getNome(DB.clienti,v.cliId)}</td>
+    <td>${eur(totVendita(v.id))}</td>
+    <td>${v.pagato?'<span class="badge bg">✓ Pagato</span>':'<span class="badge br">✗ Attesa</span>'}</td>
+  </tr>`).join('') : '<tr><td colspan="4"><div class="empty" style="padding:20px"><p>Nessuna vendita</p></div></td></tr>';
+  da.innerHTML = la.length ? la.map(a=>`<tr>
+    <td>${fdt(a.data)}</td><td>${getNome(DB.fornitori,a.fornId)}</td>
+    <td>${eur(totAcquisto(a.id))}</td>
+    <td>${a.pagato?'<span class="badge bg">✓ Pagato</span>':'<span class="badge ba">⏳ Da fare</span>'}</td>
+  </tr>`).join('') : '<tr><td colspan="4"><div class="empty" style="padding:20px"><p>Nessun acquisto</p></div></td></tr>';
 }
 
 // ─── CHARTS ────────────────────────────────────────────
@@ -954,62 +852,50 @@ function mk(id, type, data, extra={}){
 }
 
 function renderCharts(){
-  // Leggi filtri dashboard
-  const meseFilter = document.getElementById('f-mese')?.value || '';
-  const annoFilter = document.getElementById('f-anno')?.value || '';
-  
-  // Filtra vendite/acquisti in base ai filtri
-  const vendFiltrate = DB.vendite.filter(v => matchFiltro(v.data));
-  const acqFiltrate = DB.acquisti.filter(a => matchFiltro(a.data));
-
-  // Trend: usa l'anno selezionato nei filtri o l'anno corrente
-  const yearForChart = annoFilter || new Date().getFullYear();
-  const months = ['01','02','03','04','05','06','07','08','09','10','11','12'].map(m=>`${yearForChart}-${m}`);
-  const labels = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  // Trend ultimi 12 mesi
+  const months=[];
+  for(let i=11;i>=0;i--){ const d=new Date(); d.setMonth(d.getMonth()-i); months.push(d.toISOString().slice(0,7)); }
+  const labels=months.map(m=>['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'][+m.split('-')[1]-1]);
   mk('ch-trend','bar',{
     labels,
     datasets:[
-      {label:'Vendite',data:months.map(m=>vendFiltrate.filter(v=>v.data.startsWith(m)).reduce((s,v)=>s+totVendita(v.id),0)),backgroundColor:pal[0]+'cc'},
-      {label:'Acquisti',data:months.map(m=>acqFiltrate.filter(a=>a.data.startsWith(m)).reduce((s,a)=>s+totAcquisto(a.id),0)),backgroundColor:pal[1]+'cc'}
+      {label:'Vendite',data:months.map(m=>DB.vendite.filter(v=>v.data.startsWith(m)).reduce((s,v)=>s+totVendita(v.id),0)),backgroundColor:pal[0]+'cc'},
+      {label:'Acquisti',data:months.map(m=>DB.acquisti.filter(a=>a.data.startsWith(m)).reduce((s,a)=>s+totAcquisto(a.id),0)),backgroundColor:pal[1]+'cc'}
     ]
   });
 
-  // Top 5 prodotti (da vendite filtrate)
+  // Top 5 prodotti
   const pv={};
-  DB.movimenti.filter(m=>m.tipo==='Vendita').forEach(m=>{
-    if(vendFiltrate.find(v=>v.id===m.vendId)) pv[m.prodId]=(pv[m.prodId]||0)+m.sub;
-  });
+  DB.movimenti.filter(m=>m.tipo==='Vendita').forEach(m=>{ pv[m.prodId]=(pv[m.prodId]||0)+m.sub; });
   const topP=Object.entries(pv).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const topPLabels = topP.length ? topP.map(x=>`${getNome(DB.prodotti,x[0])} - € ${x[1].toFixed(2).replace('.',',')}`) : ['—'];
   mk('ch-top','doughnut',{
-    labels:topPLabels,
+    labels:topP.length?topP.map(x=>getNome(DB.prodotti,x[0])):['—'],
     datasets:[{data:topP.length?topP.map(x=>x[1]):[1],backgroundColor:pal}]
   });
 
-  // Vendite per categoria (da vendite filtrate)
+  // Vendite per categoria
   const cats=[...new Set(DB.prodotti.map(p=>p.cat))].filter(Boolean);
   const catVend=cats.map(cat=>{
     const pids=DB.prodotti.filter(p=>p.cat===cat).map(p=>p.id);
-    return DB.movimenti.filter(m=>m.tipo==='Vendita'&&pids.includes(m.prodId)&&vendFiltrate.find(v=>v.id===m.vendId)).reduce((s,m)=>s+m.sub,0);
+    return DB.movimenti.filter(m=>m.tipo==='Vendita'&&pids.includes(m.prodId)).reduce((s,m)=>s+m.sub,0);
   });
-  const catLabels = cats.length ? cats.map((c,i)=>`${c} - € ${catVend[i].toFixed(2).replace('.',',')}`) : ['—'];
   mk('ch-cat','pie',{
-    labels:catLabels,
+    labels:cats.length?cats:['—'],
     datasets:[{data:catVend.length&&catVend.some(x=>x>0)?catVend:[1],backgroundColor:pal}]
   });
 
-  // Clienti migliori (da vendite filtrate)
+  // Clienti migliori
   const cv={};
-  vendFiltrate.forEach(v=>{ cv[v.cliId]=(cv[v.cliId]||0)+totVendita(v.id); });
+  DB.vendite.forEach(v=>{ cv[v.cliId]=(cv[v.cliId]||0)+totVendita(v.id); });
   const topC=Object.entries(cv).sort((a,b)=>b[1]-a[1]).slice(0,5);
   mk('ch-cli','bar',{
     labels:topC.length?topC.map(x=>getNome(DB.clienti,x[0])):['—'],
     datasets:[{label:'€',data:topC.length?topC.map(x=>x[1]):[0],backgroundColor:pal[3]+'cc'}]
   },{plugins:{legend:{display:false}},indexAxis:'y'});
 
-  // Fornitori principali (da acquisti filtrati)
+  // Fornitori principali
   const fv={};
-  acqFiltrate.forEach(a=>{ fv[a.fornId]=(fv[a.fornId]||0)+totAcquisto(a.id); });
+  DB.acquisti.forEach(a=>{ fv[a.fornId]=(fv[a.fornId]||0)+totAcquisto(a.id); });
   const topF=Object.entries(fv).sort((a,b)=>b[1]-a[1]).slice(0,5);
   mk('ch-forn','bar',{
     labels:topF.length?topF.map(x=>getNome(DB.fornitori,x[0])):['—'],
@@ -1017,87 +903,15 @@ function renderCharts(){
   },{plugins:{legend:{display:false}},indexAxis:'y'});
 }
 
-// ─── INIT FILTRI VENDITE / ACQUISTI ───────────────────
-function initFiltriVendite(){
-  const annoSel = document.getElementById('fv-anno');
-  if(!annoSel) return;
-  const y = new Date().getFullYear();
-  annoSel.innerHTML = '<option value="">Tutti gli anni</option>';
-  for(let i=y-2;i<=y+1;i++){
-    const o=document.createElement('option');
-    o.value=i; o.textContent=i;
-    if(i===y) o.selected=true;
-    annoSel.appendChild(o);
-  }
-  document.getElementById('fv-mese').value = String(new Date().getMonth()+1).padStart(2,'0');
-  // popola clienti
-  const sel = document.getElementById('fv-cliente');
-  sel.innerHTML = '<option value="">Tutti i clienti</option>' +
-    DB.clienti.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
-}
-
-function initFiltriAcquisti(){
-  const annoSel = document.getElementById('fa-anno');
-  if(!annoSel) return;
-  const y = new Date().getFullYear();
-  annoSel.innerHTML = '<option value="">Tutti gli anni</option>';
-  for(let i=y-2;i<=y+1;i++){
-    const o=document.createElement('option');
-    o.value=i; o.textContent=i;
-    if(i===y) o.selected=true;
-    annoSel.appendChild(o);
-  }
-  document.getElementById('fa-mese').value = String(new Date().getMonth()+1).padStart(2,'0');
-  // popola fornitori
-  const sel = document.getElementById('fa-fornitore');
-  sel.innerHTML = '<option value="">Tutti i fornitori</option>' +
-    DB.fornitori.map(f=>`<option value="${f.id}">${f.nome}</option>`).join('');
-}
-
-function resetFiltriVendite(){
-  const y = new Date().getFullYear();
-  document.getElementById('fv-mese').value    = String(new Date().getMonth()+1).padStart(2,'0');
-  document.getElementById('fv-anno').value    = y;
-  document.getElementById('fv-cliente').value = '';
-  renderVendite();
-}
-
-function resetFiltriAcquisti(){
-  const y = new Date().getFullYear();
-  document.getElementById('fa-mese').value      = String(new Date().getMonth()+1).padStart(2,'0');
-  document.getElementById('fa-anno').value      = y;
-  document.getElementById('fa-fornitore').value = '';
-  renderAcquisti();
-}
-
-function matchData(data, prefMese, prefAnno){
-  if(prefAnno && prefMese) return data.startsWith(`${prefAnno}-${prefMese}`);
-  if(prefAnno)             return data.startsWith(`${prefAnno}`);
-  if(prefMese)             return data.slice(5,7) === prefMese;
-  return true;
-}
-
 // ─── RENDER VENDITE ────────────────────────────────────
 function renderVendite(){
   const tb = document.getElementById('tb-vend');
-
-  // leggi filtri e converti anno in stringa
-  const fm  = document.getElementById('fv-mese')?.value    || '';
-  const fa  = String(document.getElementById('fv-anno')?.value || '');
-  const fcl = document.getElementById('fv-cliente')?.value || '';
-
-  let rows = [...DB.vendite].sort((a,b)=>b.data.localeCompare(a.data));
-  rows = rows.filter(v => matchData(v.data, fm, fa));
-  if(fcl) rows = rows.filter(v => v.cliId === fcl);
-
-  const count = document.getElementById('fv-count');
-  if(count) count.textContent = `${rows.length} record trovati`;
-
-  if(!rows.length){ tb.innerHTML=erow(9,'💰','Nessun risultato','Prova a cambiare i filtri'); return; }
-
-  tb.innerHTML = rows.map(v=>{
+  if(!DB.vendite.length){ tb.innerHTML=erow(9,'💰','Nessuna vendita','Registra la prima con il pulsante +'); return; }
+  const sorted = [...DB.vendite].sort((a,b)=>b.data.localeCompare(a.data));
+  tb.innerHTML = sorted.map(v=>{
+    const idx = DB.vendite.indexOf(v);
     const righe = DB.movimenti.filter(m=>m.tipo==='Vendita'&&m.vendId===v.id);
-    const tot   = totVendita(v.id);
+    const tot = totVendita(v.id);
     return `<tr>
       <td>📋</td>
       <td>${fdt(v.data)}</td>
@@ -1115,24 +929,12 @@ function renderVendite(){
 // ─── RENDER ACQUISTI ───────────────────────────────────
 function renderAcquisti(){
   const tb = document.getElementById('tb-acq');
-
-  // leggi filtri e converti anno in stringa
-  const fm  = document.getElementById('fa-mese')?.value      || '';
-  const fa  = String(document.getElementById('fa-anno')?.value || '');
-  const ffn = document.getElementById('fa-fornitore')?.value || '';
-
-  let rows = [...DB.acquisti].sort((a,b)=>b.data.localeCompare(a.data));
-  rows = rows.filter(a => matchData(a.data, fm, fa));
-  if(ffn) rows = rows.filter(a => a.fornId === ffn);
-
-  const count = document.getElementById('fa-count');
-  if(count) count.textContent = `${rows.length} record trovati`;
-
-  if(!rows.length){ tb.innerHTML=erow(9,'📥','Nessun risultato','Prova a cambiare i filtri'); return; }
-
-  tb.innerHTML = rows.map(a=>{
+  if(!DB.acquisti.length){ tb.innerHTML=erow(9,'📥','Nessun acquisto','Registra il primo con il pulsante +'); return; }
+  const sorted = [...DB.acquisti].sort((a,b)=>b.data.localeCompare(a.data));
+  tb.innerHTML = sorted.map(a=>{
+    const idx = DB.acquisti.indexOf(a);
     const righe = DB.movimenti.filter(m=>m.tipo==='Acquisto'&&m.acqId===a.id);
-    const tot   = totAcquisto(a.id);
+    const tot = totAcquisto(a.id);
     return `<tr>
       <td>📋</td>
       <td>${fdt(a.data)}</td>
@@ -1147,21 +949,19 @@ function renderAcquisti(){
   }).join('');
 }
 
-
 function pagCell(row, type, id){
   if(row.pagato) return `<span class="badge bg">✓ ${row.dataPag?fdt(row.dataPag):'Pagato'}</span>`;
-  const btnLabel = type === 'vendite' ? '✓ Incassa' : '✓ Paga';
   return `<div class="pay-wrap">
     <span class="badge br">✗</span>
     <input type="date" class="pay-date" id="pd-${type}-${id}" value="${new Date().toISOString().slice(0,10)}"/>
-    <button class="pay-btn" onclick="paga('${type}','${id}')">${btnLabel}</button>
+    <button class="pay-btn" onclick="paga('${type}','${id}')">✓ Paga</button>
   </div>`;
 }
 
 // ─── RENDER PRODOTTI ───────────────────────────────────
 function renderProdotti(){
   const tb = document.getElementById('tb-prod');
-  if(!DB.prodotti.length){ tb.innerHTML=erow(7,'🍋','Nessun prodotto','Aggiungi il primo con il pulsante +'); return; }
+  if(!DB.prodotti.length){ tb.innerHTML=erow(7,'🥦','Nessun prodotto','Aggiungi il primo con il pulsante +'); return; }
   tb.innerHTML = DB.prodotti.map(p=>{
     const movs = DB.movimenti.filter(m=>m.prodId===p.id).length;
     return `<tr>
@@ -1278,13 +1078,12 @@ async function submitVendita(){
     toast('Data e cliente obbligatori','e'); return;
   }
   if(!righe.length){ toast('Aggiungi almeno un prodotto','e'); return; }
-  const pagato = document.getElementById('v-pagato').checked;
   const vend = {
     id: uid(), data: document.getElementById('v-data').value,
     cliId: document.getElementById('v-cli').value,
     flagB: document.getElementById('v-flagb').checked,
-    pagato: pagato,
-    dataPag: pagato ? document.getElementById('v-dp').value : '',
+    pagato: document.getElementById('v-pagato').checked,
+    dataPag: document.getElementById('v-dp').value,
     note: document.getElementById('v-note').value
   };
   DB.vendite.push(vend);
@@ -1294,12 +1093,6 @@ async function submitVendita(){
   });
   saveLS('vendite', DB.vendite);
   saveLS('movimenti', DB.movimenti);
-  // Scrittura su Google Sheets
-  gPost('VENDITE', [vend.id, vend.data, vend.cliId, vend.flagB?'SI':'NO', vend.pagato?'SI':'NO', vend.dataPag, vend.note]);
-  righe.forEach(r=>{
-    const tx = DB.movimenti.find(m=>m.vendId===vend.id&&m.prodId===r.prodId);
-    if(tx) gPost('MOVIMENTI', [tx.id, '', vend.id, r.prodId, 'Vendita', r.qta, r.prezzo, r.subtotale]);
-  });
   closeModal('mo-vend');
   toast('Vendita registrata ✓','s');
   resetModal('v'); renderVendite(); renderDash(); renderProdotti();
@@ -1312,13 +1105,12 @@ async function submitAcquisto(){
     toast('Data e fornitore obbligatori','e'); return;
   }
   if(!righe.length){ toast('Aggiungi almeno un prodotto','e'); return; }
-  const pagato = document.getElementById('a-pagato').checked;
   const acq = {
     id: uid(), data: document.getElementById('a-data').value,
     fornId: document.getElementById('a-forn').value,
     flagB: document.getElementById('a-flagb').checked,
-    pagato: pagato,
-    dataPag: pagato ? document.getElementById('a-dp').value : '',
+    pagato: document.getElementById('a-pagato').checked,
+    dataPag: document.getElementById('a-dp').value,
     note: document.getElementById('a-note').value
   };
   DB.acquisti.push(acq);
@@ -1328,12 +1120,6 @@ async function submitAcquisto(){
   });
   saveLS('acquisti', DB.acquisti);
   saveLS('movimenti', DB.movimenti);
-  // Scrittura su Google Sheets
-  gPost('ACQUISTI', [acq.id, acq.data, acq.fornId, acq.flagB?'SI':'NO', acq.pagato?'SI':'NO', acq.dataPag, acq.note]);
-  righe.forEach(r=>{
-    const tx = DB.movimenti.find(m=>m.acqId===acq.id&&m.prodId===r.prodId);
-    if(tx) gPost('MOVIMENTI', [tx.id, acq.id, '', r.prodId, 'Acquisto', r.qta, r.prezzo, r.subtotale]);
-  });
   closeModal('mo-acq');
   toast('Acquisto registrato ✓','s');
   resetModal('a'); renderAcquisti(); renderDash(); renderProdotti();
@@ -1348,7 +1134,6 @@ async function submitProdotto(){
   const p = {id:uid(), nome, cat, um, psacq:+document.getElementById('p-psacq').value||0, psvend:+document.getElementById('p-psvend').value||0};
   DB.prodotti.push(p);
   saveLS('prodotti', DB.prodotti);
-  gPost('PRODOTTI', [p.id, p.nome, p.cat, p.um, p.psacq, p.psvend]);
   closeModal('mo-prod');
   toast('Prodotto aggiunto ✓','s');
   ['p-nome','p-psacq','p-psvend'].forEach(id=>document.getElementById(id).value='');
@@ -1363,7 +1148,6 @@ async function submitCliente(){
   if(!nome||!tipo){ toast('Nome e tipo obbligatori','e'); return; }
   const r={id:uid(),nome,tipo,email:document.getElementById('cl-email').value.trim(),tel:document.getElementById('cl-tel').value.trim(),city:document.getElementById('cl-city').value.trim(),ind:document.getElementById('cl-ind').value.trim(),prov:document.getElementById('cl-prov').value.trim(),reg:document.getElementById('cl-reg').value.trim(),iban:document.getElementById('cl-iban').value.trim(),note:document.getElementById('cl-note').value.trim()};
   DB.clienti.push(r); saveLS('clienti',DB.clienti);
-  gPost('CLIENTI', [r.id, r.nome, r.tipo, r.email, r.tel, r.city, r.ind, r.prov, r.reg, r.iban, r.note]);
   closeModal('mo-cli'); toast('Cliente aggiunto ✓','s');
   ['cl-nome','cl-email','cl-tel','cl-city','cl-ind','cl-prov','cl-reg','cl-iban','cl-note'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cl-tipo').value='';
@@ -1377,7 +1161,6 @@ async function submitFornitore(){
   if(!nome||!tipo){ toast('Nome e tipo obbligatori','e'); return; }
   const r={id:uid(),nome,tipo,email:document.getElementById('fo-email').value.trim(),tel:document.getElementById('fo-tel').value.trim(),city:document.getElementById('fo-city').value.trim(),ind:document.getElementById('fo-ind').value.trim(),prov:document.getElementById('fo-prov').value.trim(),reg:document.getElementById('fo-reg').value.trim(),iban:document.getElementById('fo-iban').value.trim(),note:document.getElementById('fo-note').value.trim()};
   DB.fornitori.push(r); saveLS('fornitori',DB.fornitori);
-  gPost('FORNITORI', [r.id, r.nome, r.tipo, r.email, r.tel, r.city, r.ind, r.prov, r.reg, r.iban, r.note]);
   closeModal('mo-forn'); toast('Fornitore aggiunto ✓','s');
   ['fo-nome','fo-email','fo-tel','fo-city','fo-ind','fo-prov','fo-reg','fo-iban','fo-note'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fo-tipo').value='';
@@ -1461,18 +1244,13 @@ function go(name){
   document.getElementById('pg-'+name).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>{ if(b.getAttribute('onclick')?.includes("'"+name+"'")) b.classList.add('active'); });
   document.getElementById('pg-title').textContent = titles[name]||name;
-  
-  // Inizializza filtri quando entri nelle pagine
-  if(name === 'vendite') { initFiltriVendite(); renderVendite(); }
-  if(name === 'acquisti') { initFiltriAcquisti(); renderAcquisti(); }
 }
 
 // ─── TOAST ─────────────────────────────────────────────
-function toast(msg, type='i', duration=3000){
+function toast(msg, type='i'){
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='show '+type;
-  clearTimeout(t._timer);
-  t._timer=setTimeout(()=>t.className='', duration);
+  setTimeout(()=>t.className='',3000);
 }
 </script>
 </body>
