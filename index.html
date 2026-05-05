@@ -1223,7 +1223,7 @@ let vRows=[], aRows=[];
 
 function addRow(pref){
   const arr = pref==='v'?vRows:aRows;
-  const id  = uid();
+  const id  = 'tmp_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
   arr.push(id);
   const cont = document.getElementById(pref+'-rows');
   const opts = DB.prodotti.map(p=>`<option value="${p.id}" data-um="${p.um}">${p.nome}</option>`).join('');
