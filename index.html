@@ -839,10 +839,10 @@ async function loadCli(){
   DB.clienti = (await gGet('CLIENTI','A2:K')).map(r=>({id:r[0]||'',nome:r[1]||'',tipo:r[2]||'',email:r[3]||'',tel:r[4]||'',city:r[5]||'',ind:r[6]||'',prov:r[7]||'',reg:r[8]||'',iban:r[9]||'',note:r[10]||''}));
 }
 async function loadAcq(){
-  DB.acquisti = (await gGet('ACQUISTI','A2:G')).map(r=>({id:r[0]||'',data:r[1]||'',fornId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
+  DB.acquisti = (await gGet('ACQUISTI','A2:G')).map(r=>({id:r[0]||'',fornId:r[1]||'',data:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
 }
 async function loadVend(){
-  DB.vendite = (await gGet('VENDITE','A2:G')).map(r=>({id:r[0]||'',data:r[1]||'',cliId:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
+  DB.vendite = (await gGet('VENDITE','A2:G')).map(r=>({id:r[0]||'',cliId:r[1]||'',data:r[2]||'',flagB:r[3]==='SI',pagato:r[4]==='SI',dataPag:r[5]||'',note:r[6]||''}));
 }
 async function loadMov(){
   DB.movimenti = (await gGet('MOVIMENTI','A2:H')).map(r=>({id:r[0]||'',acqId:r[1]||'',vendId:r[2]||'',prodId:r[3]||'',tipo:r[4]||'',qta:+r[5]||0,prezzo:+r[6]||0,sub:+r[7]||0}));
@@ -1327,7 +1327,7 @@ async function submitVendita(){
   saveLS('vendite', DB.vendite);
   saveLS('movimenti', DB.movimenti);
   // Scrittura su Google Sheets
-  gPost('VENDITE', [vend.id, vend.data, vend.cliId, vend.flagB?'SI':'NO', vend.pagato?'SI':'NO', vend.dataPag, vend.note]);
+  gPost('VENDITE', [vend.id, vend.cliId, vend.data, vend.flagB?'SI':'NO', vend.pagato?'SI':'NO', vend.dataPag, vend.note]);
   righe.forEach(r=>{
     const tx = DB.movimenti.find(m=>m.vendId===vend.id&&m.prodId===r.prodId);
     if(tx) gPost('MOVIMENTI', [tx.id, '', vend.id, r.prodId, 'Vendita', r.qta, r.prezzo, r.subtotale]);
@@ -1361,7 +1361,7 @@ async function submitAcquisto(){
   saveLS('acquisti', DB.acquisti);
   saveLS('movimenti', DB.movimenti);
   // Scrittura su Google Sheets
-  gPost('ACQUISTI', [acq.id, acq.data, acq.fornId, acq.flagB?'SI':'NO', acq.pagato?'SI':'NO', acq.dataPag, acq.note]);
+  gPost('ACQUISTI', [acq.id, acq.fornId, acq.data, acq.flagB?'SI':'NO', acq.pagato?'SI':'NO', acq.dataPag, acq.note]);
   righe.forEach(r=>{
     const tx = DB.movimenti.find(m=>m.acqId===acq.id&&m.prodId===r.prodId);
     if(tx) gPost('MOVIMENTI', [tx.id, acq.id, '', r.prodId, 'Acquisto', r.qta, r.prezzo, r.subtotale]);
