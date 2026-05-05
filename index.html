@@ -1485,15 +1485,48 @@ function paga(type, id){
 }
 
 // ─── DELETE ────────────────────────────────────────────
+// ─── GOOGLE APPS SCRIPT DELETE ─────────────────────────
+async function gDelete(sheet, id){
+  if(!CFG.script) return;
+  try {
+    const r = await fetch(CFG.script, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'delete', sheet, id: String(id)})
+    });
+    const data = await r.json();
+    if(data.ok){
+      toast(`🗑️ Eliminato da Google Sheets (${sheet})`, 's');
+    } else {
+      toast(`⚠️ Errore eliminazione ${sheet}: ${data.error}`, 'e');
+    }
+  } catch(e) {
+    toast(`❌ Connessione fallita: ${e.message}`, 'e');
+  }
+}
+
 function delRow(type, id){
   if(!confirm('Eliminare questo record?')) return;
+
+  // Fogli Google Sheets corrispondenti
+  const sheetMap = {vendite:'VENDITE', acquisti:'ACQUISTI', prodotti:'PRODOTTI', clienti:'CLIENTI', fornitori:'FORNITORI'};
+
+  // Elimina movimenti collegati su Google Sheets
   if(type==='vendite'){
+    const movDaEliminare = DB.movimenti.filter(m=>m.tipo==='Vendita'&&m.vendId===id);
+    movDaEliminare.forEach(m => gDelete('MOVIMENTI', m.id));
     DB.movimenti = DB.movimenti.filter(m=>!(m.tipo==='Vendita'&&m.vendId===id));
     saveLS('movimenti', DB.movimenti);
   } else if(type==='acquisti'){
+    const movDaEliminare = DB.movimenti.filter(m=>m.tipo==='Acquisto'&&m.acqId===id);
+    movDaEliminare.forEach(m => gDelete('MOVIMENTI', m.id));
     DB.movimenti = DB.movimenti.filter(m=>!(m.tipo==='Acquisto'&&m.acqId===id));
     saveLS('movimenti', DB.movimenti);
   }
+
+  // Elimina record principale su Google Sheets
+  if(sheetMap[type]) gDelete(sheetMap[type], id);
+
   DB[type] = DB[type].filter(r=>String(r.id)!==String(id));
   saveLS(type, DB[type]);
   renderAll();
