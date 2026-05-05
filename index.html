@@ -212,9 +212,22 @@ textarea.fc{resize:vertical;min-height:65px}
 /* ── EXPAND ROW ────────────────────────────────────────── */
 .expand-btn{
   background:none;border:none;color:var(--text-muted);cursor:pointer;
-  font-size:14px;padding:2px 6px;border-radius:4px;transition:all .15s;
+  font-size:16px;padding:2px 6px;border-radius:4px;transition:all .2s;
 }
 .expand-btn:hover{color:var(--accent);background:var(--blue-dim)}
+.expand-btn.open{transform:rotate(90deg);color:var(--accent)}
+
+/* ── DETAIL ROW ────────────────────────────────────────── */
+.detail-row td{padding:0!important;border-bottom:1px solid var(--border2)}
+.detail-box{
+  background:var(--surface2);padding:14px 20px;border-top:1px solid var(--border);
+}
+.detail-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px}
+.detail-table{width:100%;border-collapse:collapse;font-size:12px}
+.detail-table th{text-align:left;color:var(--text-dim);font-weight:500;font-size:10px;text-transform:uppercase;padding:5px 10px;border-bottom:1px solid var(--border2)}
+.detail-table td{padding:7px 10px;border-bottom:1px solid var(--border2);color:var(--text)}
+.detail-table tr:last-child td{border-bottom:none}
+.detail-total{text-align:right;padding:8px 10px 0;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent)}
 
 /* ── EMPTY STATE ──────────────────────────────────────── */
 .empty{text-align:center;padding:48px 20px;color:var(--text-muted)}
@@ -1117,8 +1130,8 @@ function renderVendite(){
   tb.innerHTML = rows.map(v=>{
     const righe = DB.movimenti.filter(m=>m.tipo==='Vendita'&&m.vendId===v.id);
     const tot   = totVendita(v.id);
-    return `<tr>
-      <td>📋</td>
+    return `<tr id="row-${v.id}">
+      <td><button class="expand-btn" id="exp-${v.id}" onclick="toggleDetail('${v.id}','vendite')">📋</button></td>
       <td>${fdt(v.data)}</td>
       <td>${getNome(DB.clienti,v.cliId)}</td>
       <td><span class="badge bb">${righe.length} prod.</span></td>
@@ -1152,8 +1165,8 @@ function renderAcquisti(){
   tb.innerHTML = rows.map(a=>{
     const righe = DB.movimenti.filter(m=>m.tipo==='Acquisto'&&m.acqId===a.id);
     const tot   = totAcquisto(a.id);
-    return `<tr>
-      <td>📋</td>
+    return `<tr id="row-${a.id}">
+      <td><button class="expand-btn" id="exp-${a.id}" onclick="toggleDetail('${a.id}','acquisti')">📋</button></td>
       <td>${fdt(a.data)}</td>
       <td>${getNome(DB.fornitori,a.fornId)}</td>
       <td><span class="badge bb">${righe.length} prod.</span></td>
@@ -1403,7 +1416,62 @@ async function submitFornitore(){
   renderFornitori();
 }
 
-// ─── PAGAMENTO INLINE ──────────────────────────────────
+// ─── TOGGLE DETTAGLIO ORDINE ───────────────────────────
+function toggleDetail(id, type){
+  const btn     = document.getElementById('exp-'+id);
+  const existingDetail = document.getElementById('detail-'+id);
+
+  // Se già aperto, chiudi
+  if(existingDetail){
+    existingDetail.remove();
+    btn.classList.remove('open');
+    return;
+  }
+
+  btn.classList.add('open');
+
+  // Recupera dati
+  const arr     = type==='vendite' ? DB.vendite : DB.acquisti;
+  const record  = arr.find(r=>r.id===id);
+  const movs    = DB.movimenti.filter(m=>type==='vendite' ? (m.tipo==='Vendita'&&m.vendId===id) : (m.tipo==='Acquisto'&&m.acqId===id));
+  const tot     = movs.reduce((s,m)=>s+m.sub,0);
+  const anaLabel= type==='vendite' ? 'Cliente' : 'Fornitore';
+  const anaNome = type==='vendite' ? getNome(DB.clienti,record.cliId) : getNome(DB.fornitori,record.fornId);
+
+  // Righe prodotti
+  const righeHtml = movs.length ? movs.map(m=>`
+    <tr>
+      <td>${getNome(DB.prodotti,m.prodId)}</td>
+      <td style="text-align:right">${m.qta}</td>
+      <td style="text-align:right">${eur(m.prezzo)}</td>
+      <td style="text-align:right"><strong>${eur(m.sub)}</strong></td>
+    </tr>`).join('') :
+    `<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:12px">Nessun prodotto trovato</td></tr>`;
+
+  // Costruisci riga dettaglio
+  const tr = document.createElement('tr');
+  tr.id = 'detail-'+id;
+  tr.className = 'detail-row';
+  tr.innerHTML = `<td colspan="9">
+    <div class="detail-box">
+      <div class="detail-title">📋 Riepilogo ordine ${id} — ${anaLabel}: ${anaNome} — ${fdt(record.data)}</div>
+      <table class="detail-table">
+        <thead><tr>
+          <th>Prodotto</th>
+          <th style="text-align:right">Quantità</th>
+          <th style="text-align:right">Prezzo unitario</th>
+          <th style="text-align:right">Subtotale</th>
+        </tr></thead>
+        <tbody>${righeHtml}</tbody>
+      </table>
+      <div class="detail-total">Totale: ${eur(tot)}</div>
+    </div>
+  </td>`;
+
+  // Inserisci dopo la riga corrente
+  const parentRow = document.getElementById('row-'+id);
+  parentRow.insertAdjacentElement('afterend', tr);
+}
 function paga(type, id){
   const el = document.getElementById(`pd-${type}-${id}`);
   const dt = el?el.value:new Date().toISOString().slice(0,10);
