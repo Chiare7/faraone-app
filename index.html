@@ -1176,6 +1176,9 @@ function addRow(pref){
         <option value="">Seleziona…</option>${opts}
       </select>
     </div>
+    <div><label>U.M.</label>
+      <input type="text" class="fc" id="rx-um-${id}" readonly style="background:var(--surface2);opacity:.7;font-weight:500;text-align:center"/>
+    </div>
     <div><label>Quantità</label>
       <input type="number" class="fc" id="rx-qta-${id}" min="0.1" step="0.1" oninput="recalc('${pref}')"/>
     </div>
@@ -1198,11 +1201,15 @@ function removeRow(id, pref){
 
 function prefillPrezzo(id, pref){
   const prodId = document.getElementById('rx-prod-'+id)?.value;
-  if(!prodId) return;
+  if(!prodId) {
+    document.getElementById('rx-um-'+id).value = '';
+    return;
+  }
   const prod = DB.prodotti.find(p=>p.id===prodId);
   if(!prod) return;
   const prezzo = pref==='v'?prod.psvend:prod.psacq;
   document.getElementById('rx-prez-'+id).value = prezzo.toFixed(2);
+  document.getElementById('rx-um-'+id).value = prod.um;
   recalc(pref);
 }
 
