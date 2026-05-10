@@ -1559,7 +1559,13 @@ function paga(type, id){
   const dt = el?el.value:new Date().toISOString().slice(0,10);
   const arr = type==='vendite'?DB.vendite:DB.acquisti;
   const row = arr.find(r=>r.id===id);
-  if(row){ row.pagato=true; row.dataPag=dt; }
+  if(row){ 
+    row.pagato=true; 
+    row.dataPag=dt;
+    // Scrivi su Google Sheets
+    const sheet = type==='vendite'?'VENDITE':'ACQUISTI';
+    gPost(sheet, [row.id, row.cliId || row.fornId, row.data, row.flagB?'SI':'NO', 'SI', row.dataPag, row.note]);
+  }
   saveLS(type, arr);
   toast('Pagamento registrato ✓','s');
   if(type==='vendite') renderVendite(); else renderAcquisti();
