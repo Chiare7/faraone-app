@@ -465,7 +465,7 @@ textarea.fc{resize:vertical;min-height:65px}
         </div>
         <table>
           <thead><tr>
-            <th>Prodotto</th><th>Categoria</th><th>U.M.</th>
+            <th>ID</th><th>Prodotto</th><th>Categoria</th><th>U.M.</th>
             <th style="text-align:right">Quantità</th><th style="text-align:right">Prezzo medio</th>
             <th style="text-align:right">Valore totale</th><th>Stato</th>
             <th style="text-align:right">Ultimo mov.</th><th style="text-align:right">Trend 30gg</th>
@@ -486,7 +486,7 @@ textarea.fc{resize:vertical;min-height:65px}
           </div>
         </div>
         <table>
-          <thead><tr><th>Nome</th><th>Categoria</th><th>U.M.</th><th>Prezzo acq. std</th><th>Prezzo vend. std</th><th>N° movimenti</th><th></th></tr></thead>
+          <thead><tr><th>ID</th><th>Nome</th><th>Categoria</th><th>U.M.</th><th>Prezzo acq. std</th><th>Prezzo vend. std</th><th>N° movimenti</th><th></th></tr></thead>
           <tbody id="tb-prod"></tbody>
         </table>
       </div>
@@ -503,7 +503,7 @@ textarea.fc{resize:vertical;min-height:65px}
           </div>
         </div>
         <table>
-          <thead><tr><th>Nome</th><th>Tipo</th><th>Email</th><th>Telefono</th><th>Città</th><th>Indirizzo</th><th>IBAN</th><th></th></tr></thead>
+          <thead><tr><th>ID</th><th>Nome</th><th>Tipo</th><th>Email</th><th>Telefono</th><th>Città</th><th>Indirizzo</th><th>IBAN</th><th></th></tr></thead>
           <tbody id="tb-cli"></tbody>
         </table>
       </div>
@@ -520,7 +520,7 @@ textarea.fc{resize:vertical;min-height:65px}
           </div>
         </div>
         <table>
-          <thead><tr><th>Nome</th><th>Tipo</th><th>Email</th><th>Telefono</th><th>Città</th><th>Indirizzo</th><th>IBAN</th><th></th></tr></thead>
+          <thead><tr><th>ID</th><th>Nome</th><th>Tipo</th><th>Email</th><th>Telefono</th><th>Città</th><th>Indirizzo</th><th>IBAN</th><th></th></tr></thead>
           <tbody id="tb-forn"></tbody>
         </table>
       </div>
@@ -1126,6 +1126,7 @@ function renderProdotti(){
   tb.innerHTML = DB.prodotti.map(p=>{
     const movs = DB.movimenti.filter(m=>m.prodId===p.id).length;
     return `<tr>
+      <td><span class="badge bb" style="font-weight:600;letter-spacing:.5px">${p.id}</span></td>
       <td><strong>${p.nome}</strong></td>
       <td><span class="badge bb">${p.cat}</span></td>
       <td><span class="badge bgr">${p.um}</span></td>
@@ -1143,8 +1144,9 @@ function renderFornitori(){ renderAna('tb-forn',DB.fornitori,'fornitori','🏭')
 function renderAna(tbId, arr, type, icon){
   const tb = document.getElementById(tbId);
   const lbl = type==='clienti'?'cliente':'fornitore';
-  if(!arr.length){ tb.innerHTML=erow(8,icon,`Nessun ${lbl}`,`Aggiungi il primo con il pulsante +`); return; }
+  if(!arr.length){ tb.innerHTML=erow(9,icon,`Nessun ${lbl}`,`Aggiungi il primo con il pulsante +`); return; }
   tb.innerHTML = arr.map((r,i)=>`<tr>
+    <td><span class="badge bb" style="font-weight:600;letter-spacing:.5px">${r.id}</span></td>
     <td><strong>${r.nome}</strong></td>
     <td><span class="badge bb">${r.tipo||'—'}</span></td>
     <td><a href="mailto:${r.email}" style="color:var(--accent)">${r.email||'—'}</a></td>
@@ -1437,6 +1439,7 @@ function renderMagazzino(){
   tb.innerHTML = rows.map(r=>{
     const trendIcon = r.trend > 0 ? '📈' : r.trend < 0 ? '📉' : '➡️';
     return `<tr>
+      <td><span class="badge bb" style="font-weight:600;letter-spacing:.5px">${r.prodotto.id}</span></td>
       <td><strong>${r.prodotto.nome}</strong></td>
       <td><span class="badge bb">${r.prodotto.cat}</span></td>
       <td><span class="badge bgr">${r.prodotto.um}</span></td>
