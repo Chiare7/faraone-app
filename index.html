@@ -51,12 +51,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .nav-btn .ni{font-size:15px;width:20px;text-align:center}
 
 .sidebar-bottom{margin-top:auto;padding:14px;border-top:1px solid var(--border2)}
-.btn-cfg{
-  width:100%;padding:9px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;color:var(--text-muted);font-size:12px;cursor:pointer;transition:all .15s;
-  font-family:'DM Sans',sans-serif;
-}
-.btn-cfg:hover{border-color:var(--blue);color:var(--accent)}
+
 
 /* ── MAIN ──────────────────────────────────────────────── */
 #main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
@@ -235,15 +230,7 @@ textarea.fc{resize:vertical;min-height:65px}
 .empty h3{font-family:'Syne',sans-serif;font-size:15px;margin-bottom:5px;color:var(--text)}
 .empty p{font-size:12px}
 
-/* ── SETUP ────────────────────────────────────────────── */
-.cfg-box{background:var(--surface2);border:1px solid var(--blue);border-radius:10px;padding:18px;margin-bottom:14px}
-.cfg-box h3{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--accent)}
-.step{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px;margin-bottom:12px}
-.step h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.snum{width:24px;height:24px;background:var(--blue);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.step p{font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:6px}
-.step pre{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:12px;font-size:11px;color:var(--accent);overflow-x:auto;margin-top:6px;line-height:1.7;font-family:monospace}
-.step code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--accent);font-family:monospace}
+
 
 /* ── TOAST ────────────────────────────────────────────── */
 #toast{
@@ -294,6 +281,11 @@ textarea.fc{resize:vertical;min-height:65px}
   </div>
 
   <div class="nav-group">
+    <div class="nav-group-label">Magazzino</div>
+    <button class="nav-btn" onclick="go('magazzino')"><span class="ni">📦</span><span>Magazzino</span></button>
+  </div>
+
+  <div class="nav-group">
     <div class="nav-group-label">Anagrafica</div>
     <button class="nav-btn" onclick="go('prodotti')"><span class="ni">🍋</span><span>Prodotti</span></button>
     <button class="nav-btn" onclick="go('clienti')"><span class="ni">👥</span><span>Clienti</span></button>
@@ -301,7 +293,6 @@ textarea.fc{resize:vertical;min-height:65px}
   </div>
 
   <div class="sidebar-bottom">
-    <button class="btn-cfg" onclick="go('setup')">⚙️ Configurazione</button>
   </div>
 </nav>
 
@@ -439,6 +430,51 @@ textarea.fc{resize:vertical;min-height:65px}
       </div>
     </div>
 
+    <!-- ────── MAGAZZINO ────── -->
+    <div id="pg-magazzino" class="page">
+      <!-- KPI Dashboard Stock -->
+      <div class="kpi-row">
+        <div class="kpi c-blue"><div class="kpi-label">Valore inventario</div><div class="kpi-val" id="k-val-inv">—</div><div class="kpi-hint">Totale stock</div></div>
+        <div class="kpi c-green"><div class="kpi-label">Articoli in stock</div><div class="kpi-val" id="k-art-stock">—</div><div class="kpi-hint">N° prodotti</div></div>
+        <div class="kpi c-red"><div class="kpi-label">Articoli critici</div><div class="kpi-val" id="k-crit">—</div><div class="kpi-hint">Stock basso</div></div>
+        <div class="kpi c-amber"><div class="kpi-label">Più movimentati</div><div class="kpi-val" id="k-top-mov">—</div><div class="kpi-hint">Ultimi 30gg</div></div>
+      </div>
+
+      <!-- Grafici -->
+      <div class="charts-2">
+        <div class="card"><div class="card-title">Rotazione stock – Top 5 prodotti</div><canvas id="ch-rot"></canvas></div>
+        <div class="card"><div class="card-title">Movimenti ultimi 30 giorni</div><canvas id="ch-mov"></canvas></div>
+      </div>
+
+      <!-- Tabella Stock -->
+      <div class="tw">
+        <div class="tw-head">
+          <h3>Giacenze in tempo reale</h3>
+          <div class="tw-toolbar">
+            <select class="fc" id="f-mag-cat" onchange="renderMagazzino()" style="width:160px;padding:7px 12px;font-size:12px">
+              <option value="">Tutte le categorie</option>
+            </select>
+            <select class="fc" id="f-mag-stato" onchange="renderMagazzino()" style="width:140px;padding:7px 12px;font-size:12px">
+              <option value="">Tutti gli stati</option>
+              <option value="critico">🔴 Critico</option>
+              <option value="normale">🟢 Normale</option>
+              <option value="eccesso">🟡 Eccesso</option>
+            </select>
+            <span id="f-mag-count" style="font-size:11px;color:var(--text-muted);margin-left:auto"></span>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Prodotto</th><th>Categoria</th><th>U.M.</th>
+            <th style="text-align:right">Quantità</th><th style="text-align:right">Prezzo medio</th>
+            <th style="text-align:right">Valore totale</th><th>Stato</th>
+            <th style="text-align:right">Ultimo mov.</th><th style="text-align:right">Trend 30gg</th>
+          </tr></thead>
+          <tbody id="tb-mag"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- ────── PRODOTTI ────── -->
     <div id="pg-prodotti" class="page">
       <div class="tw">
@@ -487,89 +523,6 @@ textarea.fc{resize:vertical;min-height:65px}
           <thead><tr><th>Nome</th><th>Tipo</th><th>Email</th><th>Telefono</th><th>Città</th><th>Indirizzo</th><th>IBAN</th><th></th></tr></thead>
           <tbody id="tb-forn"></tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- ────── SETUP ────── -->
-    <div id="pg-setup" class="page">
-      <div class="cfg-box">
-        <h3>⚙️ Connessione Google Sheets</h3>
-        <div class="fg">
-          <div class="fgroup full"><label>Google Sheets ID</label><input class="fc" id="cfg-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/></div>
-          <div class="fgroup full"><label>API Key Google</label><input class="fc" id="cfg-key" type="password" placeholder="AIzaSy…"/></div>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-          <button class="btn btn-primary" onclick="saveConfig()">💾 Salva</button>
-          <button class="btn btn-ghost" onclick="testConn()">🔌 Testa</button>
-          <span id="cfg-ok" style="font-size:11px;color:var(--green);display:none">✓ Salvato!</span>
-        </div>
-      </div>
-
-      <div class="step">
-        <h3><span class="snum">1</span> Struttura Google Sheet</h3>
-        <p>Crea un foglio Google con questi <strong>7 tab</strong> (nomi esatti):</p>
-        <pre>PRODOTTI   FORNITORI   CLIENTI   ACQUISTI   VENDITE   MOVIMENTI   CONFIG</pre>
-      </div>
-
-      <div class="step">
-        <h3><span class="snum">2</span> Intestazioni – riga 1 di ogni foglio</h3>
-        
-        <p><strong>PRODOTTI</strong></p>
-        <pre>ID | Nome | Categoria | Unita_misura | Prezzo_std_acq | Prezzo_acq_vend</pre>
-        
-        <p><strong>FORNITORI</strong></p>
-        <pre>ID | Nome | Tipo | Email | Telefono | Citta | Indirizzo | Provincia | Regione | IBAN | Note</pre>
-        
-        <p><strong>CLIENTI</strong></p>
-        <pre>ID | Nome | Tipo | Email | Telefono | Citta | Indirizzo | Provincia | Regione | IBAN | Note</pre>
-        
-        <p><strong>ACQUISTI</strong></p>
-        <pre>ID | Data | ID_Fornitore | Flag_B | Pagato | Data_Pagamento | Note</pre>
-        
-        <p><strong>VENDITE</strong></p>
-        <pre>ID | Data | ID_Cliente | Flag_B | Pagato | Data_Pagamento | Note</pre>
-        
-        <p><strong>MOVIMENTI</strong></p>
-        <pre>ID | ID_Acquisto | ID_Vendita | ID_Prodotto | Tipo | Quantita | Prezzo_unitario | Subtotale</pre>
-        <p style="margin-top:8px">→ <code>ID_Acquisto</code> e <code>ID_Vendita</code> contengono il padre (solo uno riempito) • <code>Tipo</code> = <code>Acquisto</code> o <code>Vendita</code></p>
-      </div>
-
-      <div class="step">
-        <h3><span class="snum">3</span> Condividere e ottenere API Key</h3>
-        <p>1. Condividi il foglio come <strong>Chiunque abbia il link → Visualizzatore</strong></p>
-        <p>2. Copia l'ID dal link (stringa tra <code>/d/</code> e <code>/edit</code>)</p>
-        <p>3. <strong>console.cloud.google.com</strong> → Crea progetto → API e servizi → Credenziali → Crea Chiave API</p>
-        <p>4. Abilita <strong>Google Sheets API</strong> dalla libreria</p>
-        <p>5. Incolla ID e Key qui sopra e clicca Salva</p>
-      </div>
-
-      <div class="step">
-        <h3><span class="snum">4</span> GitHub Pages</h3>
-        <p>1. Crea repository su github.com → carica questo <code>index.html</code></p>
-        <p>2. <strong>Settings → Pages → Branch: main → /root</strong> → Salva</p>
-        <p>3. Dopo ~2 min disponibile su <code>https://tuonome.github.io/nome-repo</code></p>
-      </div>
-
-      <div class="step">
-        <h3><span class="snum">5</span> Scrittura su Google Sheets (Apps Script)</h3>
-        <p>Nel tuo Google Sheet: <strong>Estensioni → Apps Script</strong>. Incolla questo codice:</p>
-        <pre>function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(data.sheet);
-    sheet.appendRow(data.row);
-    return ContentService.createTextOutput(
-      JSON.stringify({ok: true})
-    ).setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ok: false, error: err.message})
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-</pre>
-        <p>Poi: <strong>Distribuisci → Nuova distribuzione → App web → Chiunque → Distribuisci</strong>. Copia l'URL e incollalo come Script URL nel box di config sopra.</p>
       </div>
     </div>
 
@@ -728,7 +681,6 @@ let CHARTS = {};
 
 // ─── BOOT ───────────────────────────────────────────────
 window.onload = () => {
-  loadCfg();
   setToday();
   initFiltri();
   loadFromLS();
@@ -741,31 +693,6 @@ function setToday(){
   ['v-data','a-data','v-dp','a-dp'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=t; });
 }
 
-// ─── CONFIG ─────────────────────────────────────────────
-function saveConfig(){
-  CFG.id     = document.getElementById('cfg-id').value.trim();
-  CFG.key    = document.getElementById('cfg-key').value.trim();
-  localStorage.setItem('f_cfg', JSON.stringify(CFG));
-  const ok = document.getElementById('cfg-ok');
-  ok.style.display='inline'; setTimeout(()=>ok.style.display='none',2000);
-  toast('Configurazione salvata','s');
-  refreshAll();
-}
-function loadCfg(){
-  const r = localStorage.getItem('f_cfg');
-  if(!r) {
-    document.getElementById('cfg-id').value  = '10xuWJ_uUfoekPEBgLmDc1pNi6I6p7u-Aq5Pj-MbR7Fg';
-    return;
-  }
-  CFG = JSON.parse(r);
-  document.getElementById('cfg-id').value  = CFG.id  || '';
-  document.getElementById('cfg-key').value = CFG.key || '';
-}
-async function testConn(){
-  if(!CFG.id||!CFG.key){ toast('Inserisci ID e API Key','e'); return; }
-  try{ await gGet('PRODOTTI','A1:A1'); toast('Connessione OK ✓','s'); }
-  catch(e){ toast('Errore: '+e.message,'e'); }
-}
 
 // ─── GOOGLE SHEETS GET ──────────────────────────────────
 async function gGet(sheet, range){
@@ -1416,7 +1343,157 @@ async function submitFornitore(){
   renderFornitori();
 }
 
-// ─── TOGGLE DETTAGLIO ORDINE ───────────────────────────
+// ─── CALCOLI MAGAZZINO ─────────────────────────────────
+function getStock(prodId){
+  const acq = DB.movimenti.filter(m=>m.tipo==='Acquisto'&&m.prodId===prodId).reduce((s,m)=>s+m.qta,0);
+  const vend = DB.movimenti.filter(m=>m.tipo==='Vendita'&&m.prodId===prodId).reduce((s,m)=>s+m.qta,0);
+  return acq - vend;
+}
+
+function getPrezzoMedio(prodId){
+  const movs = DB.movimenti.filter(m=>m.prodId===prodId);
+  if(!movs.length) return 0;
+  const tot = movs.reduce((s,m)=>s+m.sub,0);
+  const qtaTot = movs.reduce((s,m)=>s+m.qta,0);
+  return qtaTot > 0 ? tot / qtaTot : 0;
+}
+
+function getUltimoMovimento(prodId){
+  const movs = DB.movimenti.filter(m=>m.prodId===prodId);
+  if(!movs.length) return null;
+  const dates = movs.map(m=>{
+    const vid = m.vendId || m.acqId;
+    const rec = m.vendId ? DB.vendite.find(v=>v.id===m.vendId) : DB.acquisti.find(a=>a.id===m.acqId);
+    return rec ? rec.data : null;
+  }).filter(Boolean);
+  return dates.length ? dates.sort().reverse()[0] : null;
+}
+
+function getTrendStock(prodId, giorni=30){
+  const dataLimite = new Date();
+  dataLimite.setDate(dataLimite.getDate() - giorni);
+  const dataStr = dataLimite.toISOString().slice(0,10);
+  
+  const acq = DB.movimenti.filter(m=>m.tipo==='Acquisto'&&m.prodId===prodId).reduce((s,m)=>{
+    const rec = DB.acquisti.find(a=>a.id===m.acqId);
+    return rec && rec.data >= dataStr ? s + m.qta : s;
+  }, 0);
+  
+  const vend = DB.movimenti.filter(m=>m.tipo==='Vendita'&&m.prodId===prodId).reduce((s,m)=>{
+    const rec = DB.vendite.find(v=>v.id===m.vendId);
+    return rec && rec.data >= dataStr ? s + m.qta : s;
+  }, 0);
+  
+  return acq - vend;
+}
+
+function getStato(stock, prodId){
+  // Semplice: critico < 5, eccesso > 100, normale altrimenti
+  if(stock < 5) return 'critico';
+  if(stock > 100) return 'eccesso';
+  return 'normale';
+}
+
+// ─── RENDER MAGAZZINO ──────────────────────────────────
+function renderMagazzino(){
+  const tb = document.getElementById('tb-mag');
+  const filtCat = document.getElementById('f-mag-cat')?.value || '';
+  const filtStato = document.getElementById('f-mag-stato')?.value || '';
+  
+  // Calcola dati per ogni prodotto
+  const stockData = DB.prodotti.map(p=>{
+    const stock = getStock(p.id);
+    const prezzo = getPrezzoMedio(p.id);
+    const valore = stock * prezzo;
+    const ultimo = getUltimoMovimento(p.id);
+    const trend = getTrendStock(p.id);
+    const stato = getStato(stock, p.id);
+    
+    return {
+      prodotto: p,
+      stock, prezzo, valore, ultimo, trend, stato
+    };
+  });
+  
+  // Applica filtri
+  let rows = stockData;
+  if(filtCat) rows = rows.filter(r => r.prodotto.cat === filtCat);
+  if(filtStato) rows = rows.filter(r => r.stato === filtStato);
+  
+  const count = document.getElementById('f-mag-count');
+  if(count) count.textContent = `${rows.length} articoli`;
+  
+  if(!rows.length){ tb.innerHTML=erow(9,'📦','Nessun articolo','Prova a cambiare i filtri'); return; }
+  
+  const statoIcon = {critico:'🔴', normale:'🟢', eccesso:'🟡'};
+  
+  tb.innerHTML = rows.map(r=>{
+    const trendIcon = r.trend > 0 ? '📈' : r.trend < 0 ? '📉' : '➡️';
+    return `<tr>
+      <td><strong>${r.prodotto.nome}</strong></td>
+      <td><span class="badge bb">${r.prodotto.cat}</span></td>
+      <td><span class="badge bgr">${r.prodotto.um}</span></td>
+      <td style="text-align:right"><strong>${r.stock.toFixed(1)}</strong></td>
+      <td style="text-align:right">${eur(r.prezzo)}</td>
+      <td style="text-align:right">${eur(r.valore)}</td>
+      <td><span class="badge bb">${statoIcon[r.stato]} ${r.stato}</span></td>
+      <td style="text-align:right;font-size:11px;color:var(--text-dim)">${fdt(r.ultimo)}</td>
+      <td style="text-align:right">${trendIcon} ${r.trend > 0 ? '+' : ''}${r.trend.toFixed(1)}</td>
+    </tr>`;
+  }).join('');
+  
+  renderMagazzinoKPI(stockData);
+  renderMagazzinoCharts(stockData);
+}
+
+function renderMagazzinoKPI(data){
+  const valTot = data.reduce((s,r)=>s+r.valore,0);
+  const artStock = data.filter(r=>r.stock > 0).length;
+  const critici = data.filter(r=>r.stato==='critico').length;
+  const topMov = data.sort((a,b)=>Math.abs(b.trend)-Math.abs(a.trend))[0];
+  
+  document.getElementById('k-val-inv').textContent = eur(valTot);
+  document.getElementById('k-art-stock').textContent = artStock;
+  document.getElementById('k-crit').textContent = critici;
+  document.getElementById('k-top-mov').textContent = topMov ? topMov.prodotto.nome : '—';
+}
+
+function renderMagazzinoCharts(data){
+  // Top 5 rotazione
+  const topRot = data.sort((a,b)=>Math.abs(b.trend)-Math.abs(a.trend)).slice(0,5);
+  mk('ch-rot','bar',{
+    labels: topRot.map(r=>r.prodotto.nome),
+    datasets:[{label:'Movimento 30gg',data:topRot.map(r=>r.trend),backgroundColor:topRot.map(r=>r.trend>0?pal[1]+'cc':pal[3]+'cc')}]
+  },{plugins:{legend:{display:false}},indexAxis:'y'});
+  
+  // Movimenti ultimi 30gg per categoria
+  const cats = [...new Set(DB.prodotti.map(p=>p.cat))].filter(Boolean);
+  const movPerCat = cats.map(cat=>{
+    const pids = DB.prodotti.filter(p=>p.cat===cat).map(p=>p.id);
+    const dataLimite = new Date();
+    dataLimite.setDate(dataLimite.getDate()-30);
+    const dataStr = dataLimite.toISOString().slice(0,10);
+    const mov = DB.movimenti.filter(m=>pids.includes(m.prodId)).reduce((s,m)=>{
+      const rec = m.vendId ? DB.vendite.find(v=>v.id===m.vendId) : DB.acquisti.find(a=>a.id===m.acqId);
+      return rec && rec.data >= dataStr ? s + 1 : s;
+    },0);
+    return mov;
+  });
+  
+  mk('ch-mov','bar',{
+    labels: cats,
+    datasets:[{label:'N° movimenti',data:movPerCat,backgroundColor:pal[0]+'cc'}]
+  },{plugins:{legend:{display:false}}});
+}
+
+// ─── INIT MAGAZZINO ────────────────────────────────────
+function initMagazzino(){
+  const selCat = document.getElementById('f-mag-cat');
+  if(!selCat) return;
+  const cats = [...new Set(DB.prodotti.map(p=>p.cat))].filter(Boolean);
+  selCat.innerHTML = '<option value="">Tutte le categorie</option>' + 
+    cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
 function toggleDetail(id, type){
   const btn     = document.getElementById('exp-'+id);
   const existingDetail = document.getElementById('detail-'+id);
@@ -1574,7 +1651,7 @@ function filter(tbId, q){
 }
 
 // ─── NAVIGATION ────────────────────────────────────────
-const titles={dashboard:'Dashboard',vendite:'Vendite',acquisti:'Acquisti',prodotti:'Prodotti',clienti:'Clienti',fornitori:'Fornitori',setup:'Configurazione'};
+const titles={dashboard:'Dashboard',vendite:'Vendite',acquisti:'Acquisti',magazzino:'Magazzino',prodotti:'Prodotti',clienti:'Clienti',fornitori:'Fornitori'};
 function go(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -1585,6 +1662,7 @@ function go(name){
   // Inizializza filtri quando entri nelle pagine
   if(name === 'vendite') { initFiltriVendite(); renderVendite(); }
   if(name === 'acquisti') { initFiltriAcquisti(); renderAcquisti(); }
+  if(name === 'magazzino') { initMagazzino(); renderMagazzino(); }
 }
 
 // ─── TOAST ─────────────────────────────────────────────
