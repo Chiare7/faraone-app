@@ -385,7 +385,7 @@ textarea.fc{resize:vertical;min-height:65px}
         </div>
         <table>
           <thead><tr>
-            <th></th><th>Data</th><th>Cliente</th><th>N° movimenti</th>
+            <th></th><th>ID</th><th>Data</th><th>Cliente</th><th>N° movimenti</th>
             <th>Totale</th><th>B</th><th>Pagamento</th><th>Note</th><th></th>
           </tr></thead>
           <tbody id="tb-vend"></tbody>
@@ -422,7 +422,7 @@ textarea.fc{resize:vertical;min-height:65px}
         </div>
         <table>
           <thead><tr>
-            <th></th><th>Data</th><th>Fornitore</th><th>N° movimenti</th>
+            <th></th><th>ID</th><th>Data</th><th>Fornitore</th><th>N° movimenti</th>
             <th>Totale</th><th>B</th><th>Pagamento</th><th>Note</th><th></th>
           </tr></thead>
           <tbody id="tb-acq"></tbody>
@@ -1059,6 +1059,7 @@ function renderVendite(){
     const tot   = totVendita(v.id);
     return `<tr id="row-${v.id}">
       <td><button class="expand-btn" id="exp-${v.id}" onclick="toggleDetail('${v.id}','vendite')">📋</button></td>
+      <td><span class="badge bb" style="font-weight:600;letter-spacing:.5px">${v.id}</span></td>
       <td>${fdt(v.data)}</td>
       <td>${getNome(DB.clienti,v.cliId)}</td>
       <td><span class="badge bb">${righe.length} prod.</span></td>
@@ -1094,6 +1095,7 @@ function renderAcquisti(){
     const tot   = totAcquisto(a.id);
     return `<tr id="row-${a.id}">
       <td><button class="expand-btn" id="exp-${a.id}" onclick="toggleDetail('${a.id}','acquisti')">📋</button></td>
+      <td><span class="badge bb" style="font-weight:600;letter-spacing:.5px">${a.id}</span></td>
       <td>${fdt(a.data)}</td>
       <td>${getNome(DB.fornitori,a.fornId)}</td>
       <td><span class="badge bb">${righe.length} prod.</span></td>
