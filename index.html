@@ -1562,9 +1562,9 @@ function paga(type, id){
   if(row){ 
     row.pagato=true; 
     row.dataPag=dt;
-    // Scrivi su Google Sheets
+    // Aggiorna su Google Sheets
     const sheet = type==='vendite'?'VENDITE':'ACQUISTI';
-    gPost(sheet, [row.id, row.cliId || row.fornId, row.data, row.flagB?'SI':'NO', 'SI', row.dataPag, row.note]);
+    gUpdate(sheet, row.id, [row.id, row.cliId || row.fornId, row.data, row.flagB?'SI':'NO', 'SI', row.dataPag, row.note]);
   }
   saveLS(type, arr);
   toast('Pagamento registrato ✓','s');
@@ -1573,6 +1573,26 @@ function paga(type, id){
 }
 
 // ─── DELETE ────────────────────────────────────────────
+// ─── GOOGLE APPS SCRIPT UPDATE ─────────────────────────
+async function gUpdate(sheet, id, row){
+  if(!CFG.script) return;
+  try {
+    const r = await fetch(CFG.script, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'update', sheet, id: String(id), row})
+    });
+    const data = await r.json();
+    if(data.ok){
+      toast(`✏️ Aggiornato su Google Sheets (${sheet})`, 's');
+    } else {
+      toast(`⚠️ Errore aggiornamento ${sheet}: ${data.error}`, 'e');
+    }
+  } catch(e) {
+    toast(`❌ Connessione fallita: ${e.message}`, 'e');
+  }
+}
+
 // ─── GOOGLE APPS SCRIPT DELETE ─────────────────────────
 async function gDelete(sheet, id){
   if(!CFG.script) return;
