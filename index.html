@@ -244,6 +244,49 @@ textarea.fc{resize:vertical;min-height:65px}
 #toast.e{border-color:var(--red);color:var(--red)}
 #toast.i{border-color:var(--blue);color:var(--accent)}
 
+/* ── LOGIN ────────────────────────────────────────────── */
+#login-overlay{
+  position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dim),var(--surface));
+  z-index:9999;display:flex;align-items:center;justify-content:center;
+}
+#login-modal{
+  background:var(--surface);border:1px solid var(--blue);border-radius:14px;
+  padding:40px;width:100%;max-width:380px;box-shadow:var(--shadow);
+  text-align:center;
+}
+#login-modal h1{
+  font-family:'Syne',sans-serif;font-size:24px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--blue2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;
+}
+#login-modal p{
+  font-size:13px;color:var(--text-muted);margin-bottom:24px;
+}
+#login-pass{
+  width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;
+  margin-bottom:16px;
+}
+#login-pass:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-dim)}
+#login-btn{
+  width:100%;padding:12px;background:var(--blue);color:#fff;border:none;
+  border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+#login-btn:hover{background:var(--blue2)}
+#login-btn:disabled{opacity:.5;cursor:not-allowed}
+#login-error{
+  font-size:12px;color:var(--red);margin-top:12px;display:none;
+}
+
+.btn-logout{
+  width:100%;padding:9px;background:var(--red-dim);border:1px solid var(--red);
+  border-radius:8px;color:var(--red);font-size:12px;cursor:pointer;transition:all .15s;
+  font-family:'DM Sans',sans-serif;font-weight:500;box-sizing:border-box;
+}
+.btn-logout:hover{background:#5a1515;color:#ff6b6b}
+
 /* ── RESPONSIVE ────────────────────────────────────────── */
 @media(max-width:860px){
   #sidebar{width:54px;min-width:54px}
@@ -261,6 +304,17 @@ textarea.fc{resize:vertical;min-height:65px}
 </style>
 </head>
 <body>
+
+<!-- ════════════ LOGIN ════════════ -->
+<div id="login-overlay">
+  <div id="login-modal">
+    <h1>Faraone</h1>
+    <p>Accedi per continuare</p>
+    <input type="password" id="login-pass" placeholder="Password" onkeypress="if(event.key==='Enter') doLogin()"/>
+    <button id="login-btn" onclick="doLogin()">Accedi</button>
+    <div id="login-error"></div>
+  </div>
+</div>
 
 <!-- ════════════ SIDEBAR ════════════ -->
 <nav id="sidebar">
@@ -293,6 +347,7 @@ textarea.fc{resize:vertical;min-height:65px}
   </div>
 
   <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">🚪 Esci</button>
   </div>
 </nav>
 
@@ -678,9 +733,87 @@ textarea.fc{resize:vertical;min-height:65px}
 let CFG = {id:'10xuWJ_uUfoekPEBgLmDc1pNi6I6p7u-Aq5Pj-MbR7Fg', key:'', script:'https://script.google.com/macros/s/AKfycbwu3OkkiGbDPDTUSXipTRRtXqLowdL-Yq4B7xcZulKl84xv52O2489Vzmwf3BvnRTf9/exec'};
 let DB = {prodotti:[], fornitori:[], clienti:[], acquisti:[], vendite:[], movimenti:[]};
 let CHARTS = {};
+let AUTH = {logged: false, lastActivity: Date.now(), timeout: 3600000}; // 1 ora
 
-// ─── BOOT ───────────────────────────────────────────────
+// ─── AUTENTICAZIONE ─────────────────────────────────────
+async function loadPassword(){
+  try {
+    const data = await gGet('CONFIG','A2:B2');
+    if(data.length && data[0][0]==='password') return data[0][1];
+  } catch(e) {
+    console.error('Errore caricamento password:', e);
+  }
+  return null;
+}
+
+async function doLogin(){
+  const pass = document.getElementById('login-pass').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  
+  if(!pass) { err.textContent = 'Inserisci la password'; err.style.display='block'; return; }
+  
+  btn.disabled = true;
+  btn.textContent = '...';
+  
+  const correctPass = await loadPassword();
+  
+  if(pass === correctPass){
+    AUTH.logged = true;
+    AUTH.lastActivity = Date.now();
+    sessionStorage.setItem('faraone_auth', 'true');
+    document.getElementById('login-overlay').style.display = 'none';
+    window.onload();
+  } else {
+    err.textContent = 'Password errata';
+    err.style.display = 'block';
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'Accedi';
+}
+
+function checkAuth(){
+  // Controlla sessione del browser (sessionStorage)
+  if(!sessionStorage.getItem('faraone_auth')){
+    document.getElementById('login-overlay').style.display = 'flex';
+    return false;
+  }
+  
+  // Controlla timeout 1 ora
+  if(Date.now() - AUTH.lastActivity > AUTH.timeout){
+    logout();
+    return false;
+  }
+  
+  return true;
+}
+
+function updateActivity(){
+  AUTH.lastActivity = Date.now();
+}
+
+function logout(){
+  AUTH.logged = false;
+  sessionStorage.removeItem('faraone_auth');
+  document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  toast('Sessione scaduta. Esegui di nuovo il login.','i');
+}
+
+// Monitora attività per timeout
+document.addEventListener('click', updateActivity);
+document.addEventListener('keypress', updateActivity);
+setInterval(()=>{
+  if(AUTH.logged && Date.now() - AUTH.lastActivity > AUTH.timeout){
+    logout();
+  }
+}, 60000); // Controlla ogni minuto
+
 window.onload = () => {
+  if(!checkAuth()) return;
+  
   setToday();
   initFiltri();
   loadFromLS();
